@@ -1,0 +1,46 @@
+name: Build release packages
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.11.0"
+          python-version: "3.11"
+      - run: uv sync --locked --group dev
+      - name: Check release version
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          uv run python - <<'PY'
+          import os
+          import tomllib
+          from pathlib import Path
+          version = tomllib.loads(Path('pyproject.toml').read_text())['project']['version']
+          if os.environ['RELEASE_TAG'] != f'v{version}':
+              raise SystemExit(f'Release tag must be v{version}')
+          PY
+      - run: uv run ruff check .
+      - run: uv run pytest
+      - run: uv build
+      - name: Verify wheel installation
+        run: |
+          uv venv work/wheel-check
+          uv pip install --python work/wheel-check/bin/python dist/*.whl
+          cd work
+          wheel-check/bin/python -m wynnmcp --version
+          wheel-check/bin/python -c 'from wynnmcp.server import CATALOG; assert len(CATALOG) == 40'
+      - name: Upload packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload "$RELEASE_TAG" dist/*.whl dist/*.tar.gz --clobber

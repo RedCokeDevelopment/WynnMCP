@@ -1,0 +1,1852 @@
+{
+  "list_online_players": {
+    "method": "GET",
+    "path": "/player",
+    "parameters": [
+      {
+        "name": "identifier",
+        "in": "query",
+        "flag": false
+      },
+      {
+        "name": "server",
+        "in": "query",
+        "flag": false
+      }
+    ],
+    "description": "List online players. This endpoint is cached for 30 seconds in the USER cache source. See [Caching](/welcome#caching). This endpoint belongs to the PLAYER rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). Online player list is subject to [Access Rules](/privacy), which can hide some players from the list. Rely on the field `total` to have the accurate player count.",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "identifier": {
+          "type": "string",
+          "enum": [
+            "username",
+            "uuid"
+          ],
+          "description": "Switches player descriptor between either their username or their uuid."
+        },
+        "server": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "description": "Filter online players to a specific world such as `WC1` or `1`."
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  "get_player_identity": {
+    "method": "GET",
+    "path": "/player/whoami",
+    "parameters": [],
+    "description": "Who Am I. This endpoint is not cached. See [Caching](/welcome#caching). This endpoint belongs to the PLAYER rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). Try it will not return usable data for this route. It depends on authentication and IP-aware context, so test it against the live API outside the docs. Data returned here depends on the accounts you used to join Wynncraft. Those accounts represent who we think you are and are used for account-aware features such as store auto-login and map live position viewing.",
+    "schema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  "get_player": {
+    "method": "GET",
+    "path": "/player/{username}",
+    "parameters": [
+      {
+        "name": "username",
+        "in": "path",
+        "flag": false
+      },
+      {
+        "name": "fullResult",
+        "in": "query",
+        "flag": true
+      }
+    ],
+    "description": "Get player profile. This endpoint is cached for 2 minutes in the USER cache source. See [Caching](/welcome#caching). This endpoint belongs to the PLAYER rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). Player stats are subject to [Access Rules](/privacy), which can hide some of the stats. Check the `restrictions` object to see which access rules affected the response. It is recommended to request players by UUID. Username lookups can return `300 MultipleObjectsReturned` with a multi-selector response when more than one player matches the query. `previousRanking` is stored daily based on player activity. Subtracting `previousRanking` from the current ranking gives the player's leaderboard progression. Use `fullResult` to include full character data. The `characters` object uses the same structure as [GET /player/{username}/characters/{uuid}](api:GET/player/{username}/characters/{uuid}).",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "description": "Username or UUID accepted by the player route."
+        },
+        "fullResult": {
+          "type": "boolean",
+          "default": false,
+          "description": "Presence-based flag that expands responses. Send it without a value as `?fullResult`. Using `?fullResult=true` or `?fullResult=false` is not accepted. Set true to include the flag; false omits it."
+        }
+      },
+      "required": [
+        "username"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "list_player_characters": {
+    "method": "GET",
+    "path": "/player/{username}/characters",
+    "parameters": [
+      {
+        "name": "username",
+        "in": "path",
+        "flag": false
+      }
+    ],
+    "description": "List a player's characters. This endpoint is cached for 2 minutes in the USER cache source. See [Caching](/welcome#caching). This endpoint belongs to the PLAYER rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). This response can be restricted by player [Access Rules](/privacy). It is recommended to request players by UUID. Username lookups can return `300 MultipleObjectsReturned` with a multi-selector response when more than one player matches the query. Returns the player's characters keyed by character UUID.",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "description": "Username or UUID accepted by the player route."
+        }
+      },
+      "required": [
+        "username"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "get_player_character": {
+    "method": "GET",
+    "path": "/player/{username}/characters/{uuid}",
+    "parameters": [
+      {
+        "name": "username",
+        "in": "path",
+        "flag": false
+      },
+      {
+        "name": "uuid",
+        "in": "path",
+        "flag": false
+      }
+    ],
+    "description": "Get detailed character data. This endpoint is cached for 2 minutes in the USER cache source. See [Caching](/welcome#caching). This endpoint belongs to the PLAYER rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). Character data is subject to [Access Rules](/privacy), which can hide some stats. Check the `restrictions` object to see which access rules affected the response. You can also check the `removedStat` field to check when the character skeleton customization affect the response. It is recommended to request players by UUID. Username lookups can return `300 MultipleObjectsReturned` with a multi-selector response when more than one player matches the query. Returns the full stat payload for a single character.",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "description": "Username or UUID accepted by the player route."
+        },
+        "uuid": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "required": [
+        "username",
+        "uuid"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "get_player_character_abilities": {
+    "method": "GET",
+    "path": "/player/{username}/characters/{uuid}/abilities",
+    "parameters": [
+      {
+        "name": "username",
+        "in": "path",
+        "flag": false
+      },
+      {
+        "name": "uuid",
+        "in": "path",
+        "flag": false
+      }
+    ],
+    "description": "Get character ability map. This endpoint is cached for 10 minutes in the USER cache source. See [Caching](/welcome#caching). This endpoint belongs to the PLAYER rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). Ability Tree is subject to [Access Rules](/privacy), which can make it unavailable. It is recommended to request players by UUID. Username lookups can return `300 MultipleObjectsReturned` with a multi-selector response when more than one player matches the query. This endpoint only lists abilities the player has enabled and performs pathfinding on the fly. To render a full in-game style ability tree, combine this response with: - [GET /ability/tree/{tree}](api:GET/ability/tree/{tree}) - [GET /ability/map/{tree}](api:GET/ability/map/{tree})",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "description": "Username or UUID accepted by the player route."
+        },
+        "uuid": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "required": [
+        "username",
+        "uuid"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "get_oauth_identity": {
+    "method": "GET",
+    "path": "/oauth/me",
+    "parameters": [],
+    "description": "Get OAuth2 identity. Try it will not return usable data for this route. It depends on a live OAuth2 authentication context outside the docs. Get started with OAuth by reading [our guide](/oauth2/creating-an-application). This endpoint returns the authenticated OAuth2 application context and the linked player profiles available to the authorized user. The `profiles` object contains the player profiles that belong to the authorizing user. Access-rule bypass through OAuth2 only applies to those linked profiles when the user granted permission for it.",
+    "schema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  "list_guilds": {
+    "method": "GET",
+    "path": "/guild/list/guild",
+    "parameters": [
+      {
+        "name": "identifier",
+        "in": "query",
+        "flag": false
+      }
+    ],
+    "description": "List guilds. This endpoint is cached for 1 hour in the SHARED cache source. See [Caching](/welcome#caching). This endpoint belongs to the GUILD rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits).",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "identifier": {
+          "type": "string",
+          "enum": [
+            "username",
+            "uuid"
+          ],
+          "description": "Switches player descriptor between either their username or their uuid."
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  "list_guild_territories": {
+    "method": "GET",
+    "path": "/guild/list/territory",
+    "parameters": [],
+    "description": "List territories. This endpoint is cached for 10 seconds in the SHARED cache source. See [Caching](/welcome#caching). This endpoint belongs to the GUILD rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). The `resources` field is refreshed every 1 minute. All other territory fields continue to refresh every 10 seconds.",
+    "schema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  "list_guild_seasons": {
+    "method": "GET",
+    "path": "/guild/seasons",
+    "parameters": [],
+    "description": "List guild seasons. This endpoint is cached for 10 minutes in the SHARED cache source. See [Caching](/welcome#caching). This endpoint belongs to the GUILD rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). Only enabled seasons whose `initDate` is in the past are returned. Use this endpoint to inspect public guild season rules, including SR gain values and reward thresholds.",
+    "schema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  "get_guild_by_prefix": {
+    "method": "GET",
+    "path": "/guild/prefix/{query}",
+    "parameters": [
+      {
+        "name": "query",
+        "in": "path",
+        "flag": false
+      },
+      {
+        "name": "identifier",
+        "in": "query",
+        "flag": false
+      }
+    ],
+    "description": "Get guild by prefix. This endpoint is cached for 2 minutes in the USER cache source. See [Caching](/welcome#caching). This endpoint belongs to the GUILD rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). Prefix lookups can return `300 MultipleObjectsReturned` with a multi-selector response when more than one guild matches the query. Prefix queries are useful when your input is a guild tag rather than a full guild name. Use the `identifier` query parameter with either `username` or `uuid` to control how guild members are identified in the response.",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string"
+        },
+        "identifier": {
+          "type": "string",
+          "enum": [
+            "username",
+            "uuid"
+          ],
+          "description": "Switches player descriptor between either their username or their uuid."
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "get_guild_by_uuid": {
+    "method": "GET",
+    "path": "/guild/uuid/{query}",
+    "parameters": [
+      {
+        "name": "query",
+        "in": "path",
+        "flag": false
+      },
+      {
+        "name": "identifier",
+        "in": "query",
+        "flag": false
+      }
+    ],
+    "description": "Get guild by UUID. This endpoint is cached for 2 minutes in the USER cache source. See [Caching](/welcome#caching). This endpoint belongs to the GUILD rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). Use the `identifier` query parameter with either `username` or `uuid` to control how guild members are identified in the response.",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string"
+        },
+        "identifier": {
+          "type": "string",
+          "enum": [
+            "username",
+            "uuid"
+          ],
+          "description": "Switches player descriptor between either their username or their uuid."
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "get_guild_by_name": {
+    "method": "GET",
+    "path": "/guild/{query}",
+    "parameters": [
+      {
+        "name": "query",
+        "in": "path",
+        "flag": false
+      },
+      {
+        "name": "identifier",
+        "in": "query",
+        "flag": false
+      }
+    ],
+    "description": "Get guild by name. This endpoint is cached for 2 minutes in the USER cache source. See [Caching](/welcome#caching). This endpoint belongs to the GUILD rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). Name queries are case-insensitive. Use the `identifier` query parameter with either `username` or `uuid` to control how guild members are identified in the response.",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string"
+        },
+        "identifier": {
+          "type": "string",
+          "enum": [
+            "username",
+            "uuid"
+          ],
+          "description": "Switches player descriptor between either their username or their uuid."
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "list_items": {
+    "method": "GET",
+    "path": "/item/database",
+    "parameters": [
+      {
+        "name": "page",
+        "in": "query",
+        "flag": false
+      },
+      {
+        "name": "fullResult",
+        "in": "query",
+        "flag": true
+      }
+    ],
+    "description": "List item database entries. This endpoint is cached for 1 hour in the SHARED cache source. See [Caching](/welcome#caching). This endpoint belongs to the ITEMS rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). Items use the [API Markup parser](/welcome#api-markup-parser) for Major IDs. `fullResult` bypasses pagination and returns the `results` object for all objects at once. This endpoint uses the generic pagination response format. Enum values in these docs are based on the item metadata available on April 23, 2026. New item content can add or change values over time.",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "fullResult": {
+          "type": "boolean",
+          "default": false,
+          "description": "Presence-based flag that expands responses. Send it without a value as `?fullResult`. Using `?fullResult=true` or `?fullResult=false` is not accepted. Set true to include the flag; false omits it."
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  "search_items": {
+    "method": "POST",
+    "path": "/item/search",
+    "parameters": [
+      {
+        "name": "page",
+        "in": "query",
+        "flag": false
+      },
+      {
+        "name": "fullResult",
+        "in": "query",
+        "flag": true
+      }
+    ],
+    "description": "Search item database. This endpoint is cached for 1 hour in the SHARED cache source. See [Caching](/welcome#caching). This endpoint belongs to the ITEMS rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). Filters can be empty and do not always need to be present in the payload. To understand the endpoint better, try the official Wynncraft item guide while monitoring the network tab in your browser devtools. `fullResult` bypasses pagination and returns the `results` object for all objects at once. This endpoint uses the generic pagination response format. Enum values in these docs are based on the item metadata available on April 23, 2026. New item content can add or change values over time.",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "fullResult": {
+          "type": "boolean",
+          "default": false,
+          "description": "Presence-based flag that expands responses. Send it without a value as `?fullResult`. Using `?fullResult=true` or `?fullResult=false` is not accepted. Set true to include the flag; false omits it."
+        },
+        "filters": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "type": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "weapon",
+                    "armour",
+                    "accessory",
+                    "charm",
+                    "tome",
+                    "tool",
+                    "material",
+                    "ingredient"
+                  ]
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "weapon",
+                      "armour",
+                      "accessory",
+                      "charm",
+                      "tome",
+                      "tool",
+                      "material",
+                      "ingredient"
+                    ]
+                  }
+                }
+              ]
+            },
+            "tier": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "rare",
+                    "unique",
+                    "normal",
+                    "legendary",
+                    "mythic",
+                    "fabled",
+                    "TIER3",
+                    "TIER2",
+                    "TIER1",
+                    "TIER0"
+                  ]
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "rare",
+                      "unique",
+                      "normal",
+                      "legendary",
+                      "mythic",
+                      "fabled",
+                      "TIER3",
+                      "TIER2",
+                      "TIER1",
+                      "TIER0"
+                    ]
+                  }
+                }
+              ]
+            },
+            "attackSpeed": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "slow",
+                    "fast",
+                    "superSlow",
+                    "normal",
+                    "verySlow",
+                    "veryFast",
+                    "superFast"
+                  ]
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "slow",
+                      "fast",
+                      "superSlow",
+                      "normal",
+                      "verySlow",
+                      "veryFast",
+                      "superFast"
+                    ]
+                  }
+                }
+              ]
+            },
+            "levelRange": {
+              "oneOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                }
+              ]
+            },
+            "professions": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "farming",
+                    "fishing",
+                    "mining",
+                    "woodcutting"
+                  ]
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "farming",
+                      "fishing",
+                      "mining",
+                      "woodcutting"
+                    ]
+                  }
+                }
+              ]
+            },
+            "identifications": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "baseDamage",
+                    "baseEarthDamage",
+                    "baseThunderDamage",
+                    "baseWaterDamage",
+                    "baseFireDamage",
+                    "baseAirDamage",
+                    "strength",
+                    "dexterity",
+                    "intelligence",
+                    "defence",
+                    "agility",
+                    "healthRegenRaw",
+                    "rawSpellDamage",
+                    "rawMainAttackDamage",
+                    "elementalDefence",
+                    "rawDefence",
+                    "walkSpeed",
+                    "airDamage",
+                    "thunderDamage",
+                    "spellDamage",
+                    "raw1stSpellCost",
+                    "knockback",
+                    "fireDamage",
+                    "mainAttackDamage",
+                    "lifeSteal",
+                    "manaSteal",
+                    "weakenEnemy",
+                    "waterDefence",
+                    "airDefence",
+                    "rawDexterity",
+                    "manaRegen",
+                    "combatExperience",
+                    "slowEnemy",
+                    "waterDamage",
+                    "earthDefence",
+                    "exploding",
+                    "thunderDefence",
+                    "rawAgility",
+                    "reflection",
+                    "earthDamage",
+                    "healthRegen",
+                    "rawHealth",
+                    "damage",
+                    "elementalDamage",
+                    "rawAttackSpeed",
+                    "sprint",
+                    "raw4thSpellCost",
+                    "rawIntelligence",
+                    "rawAirDamage",
+                    "jumpHeight",
+                    "rawStrength",
+                    "rawElementalSpellDamage",
+                    "thorns",
+                    "fireDefence",
+                    "raw3rdSpellCost",
+                    "sprintRegen",
+                    "poison",
+                    "elementalSpellDamage",
+                    "rawThunderMainAttackDamage",
+                    "rawEarthMainAttackDamage",
+                    "fireSpellDamage",
+                    "stealing",
+                    "rawThunderDamage",
+                    "mainAttackRange",
+                    "raw2ndSpellCost",
+                    "1stSpellCost",
+                    "3rdSpellCost",
+                    "rawFireDamage",
+                    "lootBonus",
+                    "fireMainAttackDamage",
+                    "rawAirMainAttackDamage",
+                    "rawDamage",
+                    "4thSpellCost",
+                    "rawElementalDamage",
+                    "elementalMainAttackDamage",
+                    "earthMainAttackDamage",
+                    "thunderMainAttackDamage",
+                    "rawMaxMana",
+                    "rawAirSpellDamage",
+                    "2ndSpellCost",
+                    "rawEarthDamage",
+                    "earthSpellDamage",
+                    "waterSpellDamage",
+                    "rawFireSpellDamage",
+                    "criticalDamageBonus",
+                    "airSpellDamage",
+                    "rawThunderSpellDamage",
+                    "rawWaterSpellDamage",
+                    "rawFireMainAttackDamage",
+                    "neutralSpellDamage",
+                    "neutralDamage",
+                    "rawNeutralMainAttackDamage",
+                    "thunderSpellDamage",
+                    "rawEarthSpellDamage",
+                    "rawNeutralDamage",
+                    "rawWaterDamage",
+                    "healingEfficiency",
+                    "rawElementalMainAttackDamage",
+                    "airMainAttackDamage",
+                    "rawNeutralSpellDamage",
+                    "baseHealth",
+                    "baseEarthDefence",
+                    "baseFireDefence",
+                    "baseThunderDefence",
+                    "baseWaterDefence",
+                    "baseAirDefence",
+                    "neutralMainAttackDamage",
+                    "leveledXpBonus",
+                    "damageFromMobs",
+                    "leveledLootBonus",
+                    "gatheringExperience",
+                    "gatherXpBonus",
+                    "gatherSpeed",
+                    "lootQuality",
+                    "rawWaterMainAttackDamage",
+                    "AGILITYBONUS",
+                    "STRENGTHBONUS"
+                  ]
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "baseDamage",
+                      "baseEarthDamage",
+                      "baseThunderDamage",
+                      "baseWaterDamage",
+                      "baseFireDamage",
+                      "baseAirDamage",
+                      "strength",
+                      "dexterity",
+                      "intelligence",
+                      "defence",
+                      "agility",
+                      "healthRegenRaw",
+                      "rawSpellDamage",
+                      "rawMainAttackDamage",
+                      "elementalDefence",
+                      "rawDefence",
+                      "walkSpeed",
+                      "airDamage",
+                      "thunderDamage",
+                      "spellDamage",
+                      "raw1stSpellCost",
+                      "knockback",
+                      "fireDamage",
+                      "mainAttackDamage",
+                      "lifeSteal",
+                      "manaSteal",
+                      "weakenEnemy",
+                      "waterDefence",
+                      "airDefence",
+                      "rawDexterity",
+                      "manaRegen",
+                      "combatExperience",
+                      "slowEnemy",
+                      "waterDamage",
+                      "earthDefence",
+                      "exploding",
+                      "thunderDefence",
+                      "rawAgility",
+                      "reflection",
+                      "earthDamage",
+                      "healthRegen",
+                      "rawHealth",
+                      "damage",
+                      "elementalDamage",
+                      "rawAttackSpeed",
+                      "sprint",
+                      "raw4thSpellCost",
+                      "rawIntelligence",
+                      "rawAirDamage",
+                      "jumpHeight",
+                      "rawStrength",
+                      "rawElementalSpellDamage",
+                      "thorns",
+                      "fireDefence",
+                      "raw3rdSpellCost",
+                      "sprintRegen",
+                      "poison",
+                      "elementalSpellDamage",
+                      "rawThunderMainAttackDamage",
+                      "rawEarthMainAttackDamage",
+                      "fireSpellDamage",
+                      "stealing",
+                      "rawThunderDamage",
+                      "mainAttackRange",
+                      "raw2ndSpellCost",
+                      "1stSpellCost",
+                      "3rdSpellCost",
+                      "rawFireDamage",
+                      "lootBonus",
+                      "fireMainAttackDamage",
+                      "rawAirMainAttackDamage",
+                      "rawDamage",
+                      "4thSpellCost",
+                      "rawElementalDamage",
+                      "elementalMainAttackDamage",
+                      "earthMainAttackDamage",
+                      "thunderMainAttackDamage",
+                      "rawMaxMana",
+                      "rawAirSpellDamage",
+                      "2ndSpellCost",
+                      "rawEarthDamage",
+                      "earthSpellDamage",
+                      "waterSpellDamage",
+                      "rawFireSpellDamage",
+                      "criticalDamageBonus",
+                      "airSpellDamage",
+                      "rawThunderSpellDamage",
+                      "rawWaterSpellDamage",
+                      "rawFireMainAttackDamage",
+                      "neutralSpellDamage",
+                      "neutralDamage",
+                      "rawNeutralMainAttackDamage",
+                      "thunderSpellDamage",
+                      "rawEarthSpellDamage",
+                      "rawNeutralDamage",
+                      "rawWaterDamage",
+                      "healingEfficiency",
+                      "rawElementalMainAttackDamage",
+                      "airMainAttackDamage",
+                      "rawNeutralSpellDamage",
+                      "baseHealth",
+                      "baseEarthDefence",
+                      "baseFireDefence",
+                      "baseThunderDefence",
+                      "baseWaterDefence",
+                      "baseAirDefence",
+                      "neutralMainAttackDamage",
+                      "leveledXpBonus",
+                      "damageFromMobs",
+                      "leveledLootBonus",
+                      "gatheringExperience",
+                      "gatherXpBonus",
+                      "gatherSpeed",
+                      "lootQuality",
+                      "rawWaterMainAttackDamage",
+                      "AGILITYBONUS",
+                      "STRENGTHBONUS"
+                    ]
+                  }
+                }
+              ]
+            },
+            "majorIds": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "evershot",
+                    "forestSBlessing",
+                    "fallout",
+                    "twistingThreads",
+                    "pioneerSEcho",
+                    "altruism",
+                    "freerunner",
+                    "vedette",
+                    "realityRevision",
+                    "seekingModule",
+                    "fission",
+                    "freneticSpirit",
+                    "netShot",
+                    "deathSentence",
+                    "regicide",
+                    "selfSufficient",
+                    "napalm",
+                    "riverofSouls",
+                    "comboStomp",
+                    "gunkShot",
+                    "heartbeat",
+                    "methodical",
+                    "fantheHammer",
+                    "wormhole",
+                    "punishment",
+                    "grandInfluence",
+                    "cherryBombs",
+                    "greed",
+                    "windsurf",
+                    "hurricaneSEye",
+                    "sorcery",
+                    "rovingAssassin",
+                    "transcendence",
+                    "efflorescence",
+                    "spaceGlide",
+                    "heatShimmer",
+                    "soulEater",
+                    "juggle",
+                    "flurryofBlows",
+                    "incisionElegy",
+                    "lightningCrash",
+                    "livingMuseum",
+                    "manicEdge",
+                    "enlightenment",
+                    "ignitionWhirlwind",
+                    "lifestream",
+                    "peacefulEffigy",
+                    "stringsofFate",
+                    "ergosphere",
+                    "deadWeight",
+                    "sublimation",
+                    "furiousEffigy",
+                    "faustianGambit",
+                    "totemicFuse",
+                    "geocentrism",
+                    "gruesomeKnots",
+                    "starcrossed",
+                    "chaosReach",
+                    "flainRemnants",
+                    "litFuse",
+                    "rally",
+                    "hellfire",
+                    "paragon",
+                    "divineHonor",
+                    "trollBarge",
+                    "tidalDrift",
+                    "guardian",
+                    "lastResort",
+                    "saviourSSacrifice",
+                    "scarceComfort",
+                    "vitriol",
+                    "tackle",
+                    "divineRight",
+                    "slowBoil",
+                    "stagnantAir",
+                    "oldSpark",
+                    "oneselfUntoAll",
+                    "temblor",
+                    "overwhelm",
+                    "meteorCrash",
+                    "earthenSplinter",
+                    "entropy",
+                    "fixate",
+                    "lustrate",
+                    "inversion",
+                    "cosmicCapture",
+                    "orbitalChain",
+                    "perfectRecall",
+                    "gravityWell",
+                    "displace",
+                    "lockdown",
+                    "plague",
+                    "solarWind",
+                    "wavebreak",
+                    "֎",
+                    "gentleGlow",
+                    "blindingLights",
+                    "oneiro",
+                    "dauntlessInferno",
+                    "fissure",
+                    "flashfreeze",
+                    "perilousFlare",
+                    "explosiveImpact",
+                    "escapeRoute",
+                    "lightweight",
+                    "pirouette",
+                    "lunge",
+                    "taunt",
+                    "desperateMeasures",
+                    "rockShield",
+                    "cannulate",
+                    "snowySteps",
+                    "phoenixBorn",
+                    "superconductor",
+                    "magnet",
+                    "alterEgo",
+                    "mangle",
+                    "intangible",
+                    "iceStorm",
+                    "pounce",
+                    "hawkeye",
+                    "orbwalk",
+                    "burntShadows",
+                    "frightorFlight",
+                    "festiveSpirit",
+                    "sunEater",
+                    "recklessAbandon",
+                    "expunge",
+                    "brachiate",
+                    "rustedIchor",
+                    "findThyself",
+                    "madness",
+                    "clamber",
+                    "splitSecond",
+                    "spectralMemory",
+                    "insoluble",
+                    "boundbyBlood",
+                    "mobMentality",
+                    "lasso",
+                    "coagulate",
+                    "flightBurst",
+                    "culicidaeCreed",
+                    "powerFist",
+                    "brutalBlow"
+                  ]
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "evershot",
+                      "forestSBlessing",
+                      "fallout",
+                      "twistingThreads",
+                      "pioneerSEcho",
+                      "altruism",
+                      "freerunner",
+                      "vedette",
+                      "realityRevision",
+                      "seekingModule",
+                      "fission",
+                      "freneticSpirit",
+                      "netShot",
+                      "deathSentence",
+                      "regicide",
+                      "selfSufficient",
+                      "napalm",
+                      "riverofSouls",
+                      "comboStomp",
+                      "gunkShot",
+                      "heartbeat",
+                      "methodical",
+                      "fantheHammer",
+                      "wormhole",
+                      "punishment",
+                      "grandInfluence",
+                      "cherryBombs",
+                      "greed",
+                      "windsurf",
+                      "hurricaneSEye",
+                      "sorcery",
+                      "rovingAssassin",
+                      "transcendence",
+                      "efflorescence",
+                      "spaceGlide",
+                      "heatShimmer",
+                      "soulEater",
+                      "juggle",
+                      "flurryofBlows",
+                      "incisionElegy",
+                      "lightningCrash",
+                      "livingMuseum",
+                      "manicEdge",
+                      "enlightenment",
+                      "ignitionWhirlwind",
+                      "lifestream",
+                      "peacefulEffigy",
+                      "stringsofFate",
+                      "ergosphere",
+                      "deadWeight",
+                      "sublimation",
+                      "furiousEffigy",
+                      "faustianGambit",
+                      "totemicFuse",
+                      "geocentrism",
+                      "gruesomeKnots",
+                      "starcrossed",
+                      "chaosReach",
+                      "flainRemnants",
+                      "litFuse",
+                      "rally",
+                      "hellfire",
+                      "paragon",
+                      "divineHonor",
+                      "trollBarge",
+                      "tidalDrift",
+                      "guardian",
+                      "lastResort",
+                      "saviourSSacrifice",
+                      "scarceComfort",
+                      "vitriol",
+                      "tackle",
+                      "divineRight",
+                      "slowBoil",
+                      "stagnantAir",
+                      "oldSpark",
+                      "oneselfUntoAll",
+                      "temblor",
+                      "overwhelm",
+                      "meteorCrash",
+                      "earthenSplinter",
+                      "entropy",
+                      "fixate",
+                      "lustrate",
+                      "inversion",
+                      "cosmicCapture",
+                      "orbitalChain",
+                      "perfectRecall",
+                      "gravityWell",
+                      "displace",
+                      "lockdown",
+                      "plague",
+                      "solarWind",
+                      "wavebreak",
+                      "֎",
+                      "gentleGlow",
+                      "blindingLights",
+                      "oneiro",
+                      "dauntlessInferno",
+                      "fissure",
+                      "flashfreeze",
+                      "perilousFlare",
+                      "explosiveImpact",
+                      "escapeRoute",
+                      "lightweight",
+                      "pirouette",
+                      "lunge",
+                      "taunt",
+                      "desperateMeasures",
+                      "rockShield",
+                      "cannulate",
+                      "snowySteps",
+                      "phoenixBorn",
+                      "superconductor",
+                      "magnet",
+                      "alterEgo",
+                      "mangle",
+                      "intangible",
+                      "iceStorm",
+                      "pounce",
+                      "hawkeye",
+                      "orbwalk",
+                      "burntShadows",
+                      "frightorFlight",
+                      "festiveSpirit",
+                      "sunEater",
+                      "recklessAbandon",
+                      "expunge",
+                      "brachiate",
+                      "rustedIchor",
+                      "findThyself",
+                      "madness",
+                      "clamber",
+                      "splitSecond",
+                      "spectralMemory",
+                      "insoluble",
+                      "boundbyBlood",
+                      "mobMentality",
+                      "lasso",
+                      "coagulate",
+                      "flightBurst",
+                      "culicidaeCreed",
+                      "powerFist",
+                      "brutalBlow"
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "additionalProperties": false,
+          "description": "Search filters; omit or use {} for no filters."
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  "quick_search_items": {
+    "method": "GET",
+    "path": "/item/search/{query}",
+    "parameters": [
+      {
+        "name": "query",
+        "in": "path",
+        "flag": false
+      }
+    ],
+    "description": "Quick item search. This endpoint is cached for 1 hour in the SHARED cache source. See [Caching](/welcome#caching). This endpoint belongs to the ITEMS rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). Items use the [API Markup parser](/welcome#api-markup-parser) for Major IDs. Enum values in these docs are based on the item metadata available on April 23, 2026. New item content can add or change values over time.",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "list_recipes": {
+    "method": "GET",
+    "path": "/item/recipe/database",
+    "parameters": [
+      {
+        "name": "page",
+        "in": "query",
+        "flag": false
+      },
+      {
+        "name": "full_result",
+        "in": "query",
+        "flag": true
+      }
+    ],
+    "description": "List recipe database entries. This endpoint is cached for 1 hour in the SHARED cache source. See [Caching](/welcome#caching). This endpoint belongs to the ITEMS rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). `full_result` bypasses pagination and returns the full raw array instead of the paginated object. This endpoint uses the generic pagination response format unless `full_result` is present.",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "full_result": {
+          "type": "boolean",
+          "default": false,
+          "description": "Presence-based flag that expands responses. Send it without a value as `?full_result`. Using `?full_result=true` or `?full_result=false` is not accepted. Set true to include the flag; false omits it."
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  "search_recipes": {
+    "method": "POST",
+    "path": "/item/recipe/search",
+    "parameters": [
+      {
+        "name": "page",
+        "in": "query",
+        "flag": false
+      },
+      {
+        "name": "full_result",
+        "in": "query",
+        "flag": true
+      }
+    ],
+    "description": "Search recipe database. This endpoint is cached for 1 hour in the SHARED cache source. See [Caching](/welcome#caching). This endpoint belongs to the ITEMS rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). `full_result` bypasses pagination and returns the full raw array instead of the paginated object. For range filters, an integer checks whether that value falls inside the stored recipe range. A one-value list behaves the same way. A two-value list matches any recipe whose stored range overlaps the requested range.",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "full_result": {
+          "type": "boolean",
+          "default": false,
+          "description": "Presence-based flag that expands responses. Send it without a value as `?full_result`. Using `?full_result=true` or `?full_result=false` is not accepted. Set true to include the flag; false omits it."
+        },
+        "filters": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ],
+              "description": "Match recipe `internalName` values by partial name, such as `1-3` or `Bow1-3`."
+            },
+            "xp": {
+              "oneOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                }
+              ],
+              "description": "Match an exact XP value or an inclusive XP range."
+            },
+            "type": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "skill": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "materials": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ],
+              "description": "Match material item names, case-insensitive."
+            },
+            "level": {
+              "oneOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                }
+              ]
+            },
+            "durability": {
+              "oneOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                }
+              ]
+            },
+            "healthOrDamage": {
+              "oneOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                }
+              ]
+            },
+            "duration": {
+              "oneOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                }
+              ]
+            },
+            "basicDuration": {
+              "oneOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                }
+              ]
+            }
+          },
+          "additionalProperties": false,
+          "description": "Search filters; omit or use {} for no filters."
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  "get_item_metadata": {
+    "method": "GET",
+    "path": "/item/metadata",
+    "parameters": [
+      {
+        "name": "static",
+        "in": "query",
+        "flag": true
+      }
+    ],
+    "description": "Get item filter metadata. This endpoint is cached for 3 minutes in the SHARED cache source. See [Caching](/welcome#caching). This endpoint belongs to the ITEMS rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). Returns all available filters for advanced item search. If you need an exact filter or lookup key, this endpoint is the authoritative source. Prefer `?static` when you only need the static lookup map. The default response also includes website-oriented filter groupings used by the item guide.",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "static": {
+          "type": "boolean",
+          "default": false,
+          "description": "Presence-based flag that returns only the static metadata payload. Prefer sending it as `?static`. `?static=` is also accepted. Set true to include the flag; false omits it."
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  "list_item_sets": {
+    "method": "GET",
+    "path": "/item/sets",
+    "parameters": [],
+    "description": "List item sets. This endpoint is cached for 2 minutes in the SHARED cache source. See [Caching](/welcome#caching). This endpoint belongs to the ITEMS rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits).",
+    "schema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  "get_ability_tree": {
+    "method": "GET",
+    "path": "/ability/tree/{tree}",
+    "parameters": [
+      {
+        "name": "tree",
+        "in": "path",
+        "flag": false
+      }
+    ],
+    "description": "Get class ability tree. This endpoint is cached for 1 hour in the SHARED cache source. See [Caching](/welcome#caching). This endpoint belongs to the SHARED rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). Ability and aspect responses use the [API Markup parser](/welcome#api-markup-parser). Use these endpoints together to render a player ability tree like the in-game view: - [GET /ability/tree/{tree}](api:GET/ability/tree/{tree}) - [GET /ability/map/{tree}](api:GET/ability/map/{tree}) - [GET /player/{username}/characters/{uuid}/abilities](api:GET/player/{username}/characters/{uuid}/abilities)",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "tree": {
+          "type": "string",
+          "enum": [
+            "archer",
+            "warrior",
+            "assassin",
+            "mage",
+            "shaman"
+          ]
+        }
+      },
+      "required": [
+        "tree"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "get_ability_map": {
+    "method": "GET",
+    "path": "/ability/map/{tree}",
+    "parameters": [
+      {
+        "name": "tree",
+        "in": "path",
+        "flag": false
+      }
+    ],
+    "description": "Get class ability tree map. This endpoint is cached for 1 hour in the SHARED cache source. See [Caching](/welcome#caching). This endpoint belongs to the SHARED rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). Ability and aspect responses use the [API Markup parser](/welcome#api-markup-parser). Use these endpoints together to render a player ability tree like the in-game view: - [GET /ability/tree/{tree}](api:GET/ability/tree/{tree}) - [GET /ability/map/{tree}](api:GET/ability/map/{tree}) - [GET /player/{username}/characters/{uuid}/abilities](api:GET/player/{username}/characters/{uuid}/abilities) The map structure is shared with [GET /player/{username}/characters/{uuid}/abilities](api:GET/player/{username}/characters/{uuid}/abilities).",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "tree": {
+          "type": "string",
+          "enum": [
+            "archer",
+            "warrior",
+            "assassin",
+            "mage",
+            "shaman"
+          ]
+        }
+      },
+      "required": [
+        "tree"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "list_aspects": {
+    "method": "GET",
+    "path": "/aspects/{tree}",
+    "parameters": [
+      {
+        "name": "tree",
+        "in": "path",
+        "flag": false
+      }
+    ],
+    "description": "List aspects for a class. This endpoint is cached for 1 hour in the SHARED cache source. See [Caching](/welcome#caching). This endpoint belongs to the SHARED rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). Ability and aspect responses use the [API Markup parser](/welcome#api-markup-parser).",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "tree": {
+          "type": "string",
+          "enum": [
+            "archer",
+            "warrior",
+            "assassin",
+            "mage",
+            "shaman"
+          ]
+        }
+      },
+      "required": [
+        "tree"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "list_classes": {
+    "method": "GET",
+    "path": "/classes",
+    "parameters": [],
+    "description": "List classes. This endpoint is cached for 1 hour in the SHARED cache source. See [Caching](/welcome#caching). This endpoint belongs to the SHARED rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits).",
+    "schema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  "get_class": {
+    "method": "GET",
+    "path": "/classes/{class_name}",
+    "parameters": [
+      {
+        "name": "class_name",
+        "in": "path",
+        "flag": false
+      }
+    ],
+    "description": "Get class detail. This endpoint is cached for 1 hour in the SHARED cache source. See [Caching](/welcome#caching). This endpoint belongs to the SHARED rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits).",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "class_name": {
+          "type": "string",
+          "enum": [
+            "archer",
+            "warrior",
+            "assassin",
+            "mage",
+            "shaman"
+          ]
+        }
+      },
+      "required": [
+        "class_name"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "list_map_markers": {
+    "method": "GET",
+    "path": "/map/locations/markers",
+    "parameters": [],
+    "description": "List map markers. This endpoint is cached for 1 hour in the SHARED cache source. See [Caching](/welcome#caching). This endpoint belongs to the MAP rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits).",
+    "schema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  "list_player_locations": {
+    "method": "GET",
+    "path": "/map/locations/player",
+    "parameters": [],
+    "description": "List visible player locations. This endpoint is cached for 15 seconds in the USER cache source. See [Caching](/welcome#caching). This endpoint belongs to the MAP rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). Try it will not return usable data for this route. It depends on authentication and IP-aware context, so test it against the live API outside the docs.",
+    "schema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  "list_world_events": {
+    "method": "GET",
+    "path": "/map/world-events",
+    "parameters": [],
+    "description": "List world events. This endpoint is cached for 2 minutes in the SHARED cache source. See [Caching](/welcome#caching). This endpoint belongs to the MAP rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). The `schedule` field only contains the next visible run. The current schedule window is 15 minutes. When no run starts inside that visibility window, `schedule` is `null`.",
+    "schema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  "list_map_camps": {
+    "method": "GET",
+    "path": "/map/camps",
+    "parameters": [
+      {
+        "name": "level",
+        "in": "query",
+        "flag": false
+      }
+    ],
+    "description": "List map camps. This endpoint is cached for 1 minute in the SHARED cache source. See [Caching](/welcome#caching). This endpoint belongs to the MAP rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). Use `level` to preview rewards for a specific level. The API picks the highest available preview threshold that does not exceed the requested level. If none match, it falls back to the lowest available threshold.",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "level": {
+          "type": "integer",
+          "description": "Preview level used when rendering loot-pool rewards. Invalid values are ignored."
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  "list_map_raids": {
+    "method": "GET",
+    "path": "/map/raids",
+    "parameters": [
+      {
+        "name": "level",
+        "in": "query",
+        "flag": false
+      }
+    ],
+    "description": "List map raids. This endpoint is cached for 1 minute in the SHARED cache source. See [Caching](/welcome#caching). This endpoint belongs to the MAP rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). Use `level` to preview rewards for a specific level. The API picks the highest available preview threshold that does not exceed the requested level. If none match, it falls back to the lowest available threshold.",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "level": {
+          "type": "integer",
+          "description": "Preview level used when rendering loot-pool rewards. Invalid values are ignored."
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  "list_map_loot_pools": {
+    "method": "GET",
+    "path": "/map/loot-pools",
+    "parameters": [
+      {
+        "name": "level",
+        "in": "query",
+        "flag": false
+      }
+    ],
+    "description": "List map loot pools. This endpoint is cached for 2 minutes in the SHARED cache source. See [Caching](/welcome#caching). This endpoint belongs to the MAP rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). Use `level` to preview rewards for a specific level. The API picks the highest available preview threshold that does not exceed the requested level. If none match, it falls back to the lowest available threshold.",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "level": {
+          "type": "integer",
+          "description": "Preview level used when rendering loot-pool rewards. Invalid values are ignored."
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  "list_gathering_nodes": {
+    "method": "GET",
+    "path": "/map/gathering-nodes",
+    "parameters": [],
+    "description": "List gathering nodes. This endpoint is cached for 1 hour in the SHARED cache source. See [Caching](/welcome#caching). This endpoint belongs to the MAP rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). `type` distinguishes normal node spots from wall and corner placements used by the web map.",
+    "schema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  "get_quest_count": {
+    "method": "GET",
+    "path": "/map/quests",
+    "parameters": [],
+    "description": "Get total quest count. This endpoint is cached for 1 hour in the SHARED cache source. See [Caching](/welcome#caching). This endpoint belongs to the MAP rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits).",
+    "schema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  "global_search": {
+    "method": "GET",
+    "path": "/search/{query}",
+    "parameters": [
+      {
+        "name": "query",
+        "in": "path",
+        "flag": false
+      },
+      {
+        "name": "only",
+        "in": "query",
+        "flag": false
+      }
+    ],
+    "description": "Search across public resources. This endpoint is cached for 10 minutes in the SHARED cache source. See [Caching](/welcome#caching). This endpoint belongs to the SHARED rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). Item results use the same structure as item responses. Player results are limited to 20 entries and guild results are limited to 50 entries.",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string"
+        },
+        "only": {
+          "type": "string",
+          "description": "Restrict global search to one result category."
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "list_leaderboard_types": {
+    "method": "GET",
+    "path": "/leaderboards/types",
+    "parameters": [],
+    "description": "List leaderboard types. This endpoint is cached for 10 minutes in the SHARED cache source. See [Caching](/welcome#caching). This endpoint belongs to the LEADERBOARDS rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). Use this list to know which leaderboard types can be requested from `GET /leaderboards/{lb_type}`.",
+    "schema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  "get_leaderboard": {
+    "method": "GET",
+    "path": "/leaderboards/{lb_type}",
+    "parameters": [
+      {
+        "name": "lb_type",
+        "in": "path",
+        "flag": false
+      },
+      {
+        "name": "resultLimit",
+        "in": "query",
+        "flag": false
+      }
+    ],
+    "description": "Get leaderboard entries. This endpoint is cached for 10 minutes in the USER cache source. See [Caching](/welcome#caching). This endpoint belongs to the LEADERBOARDS rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). Leaderboards update every 10 minutes for online players. Players who go offline between update intervals are flagged to update on the next interval. Use `resultLimit` with an integer below 1000 to limit the response size. The default limit is `100`. Character-based leaderboards can include `characterUuid` and `characterType`, such as profession or gamemode leaderboards. `metadata` contains variable keys depending on the leaderboard type. Some gamemode leaderboards also include top-level `characterData`, which has the same structure as player character data. Some entries also include optional rank presentation fields such as `rank`, `supportRank`, `shortenedRank`, `legacyRankColour`, and `rankBadge`. Guild season leaderboard types are dynamic and use the `guildSeason...` format returned by `GET /leaderboards/types`, such as `guildSeason32`. Raid leaderboards include a score and gambits used. Completion starts at 200, then adds +10, +20, or +30 for each gambit. `previousRanking` is stored daily depending on player activity. Subtracting `previousRanking` from the current ranking gives the player's leaderboard progression.",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "lb_type": {
+          "type": "string",
+          "description": "Leaderboard identifier such as `playerContent`."
+        },
+        "resultLimit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "description": "Defaults to 100."
+        }
+      },
+      "required": [
+        "lb_type"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "fetch_publisher_article": {
+    "method": "GET",
+    "path": "/publisher/articles/fetch/{article_type}/{pk}",
+    "parameters": [
+      {
+        "name": "article_type",
+        "in": "path",
+        "flag": false
+      },
+      {
+        "name": "pk",
+        "in": "path",
+        "flag": false
+      }
+    ],
+    "description": "Fetch a published article. This endpoint is cached for 2 minutes in the SHARED cache source. See [Caching](/welcome#caching). This endpoint belongs to the SHARED rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). Article content uses standard Markdown syntax alongside Discord-specific syntax such as timestamps. See Discord Markdown and timestamp formatting for supported syntax. Poll articles can include `question` content blocks. In those blocks, `content` can be either a plain string or a structured question object with answer options and requirements.",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "article_type": {
+          "type": "string",
+          "enum": [
+            "blog",
+            "event",
+            "giveaway",
+            "article",
+            "poll"
+          ],
+          "description": "Publisher content type. Use `article` to return every published article type."
+        },
+        "pk": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "article_type",
+        "pk"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "list_publisher_articles": {
+    "method": "GET",
+    "path": "/publisher/articles/list/{article_type}",
+    "parameters": [
+      {
+        "name": "article_type",
+        "in": "path",
+        "flag": false
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "flag": false
+      }
+    ],
+    "description": "List published articles. This endpoint is cached for 2 minutes in the SHARED cache source. See [Caching](/welcome#caching). This endpoint belongs to the SHARED rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). Lists published articles. Use `article` to return every published article type in the same response. This endpoint uses the generic pagination response format.",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "article_type": {
+          "type": "string",
+          "enum": [
+            "blog",
+            "event",
+            "giveaway",
+            "article",
+            "poll"
+          ]
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "article_type"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "list_publisher_videos": {
+    "method": "GET",
+    "path": "/publisher/videos/list",
+    "parameters": [],
+    "description": "List featured videos. This endpoint is cached for 2 minutes in the SHARED cache source. See [Caching](/welcome#caching). This endpoint belongs to the SHARED rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits).",
+    "schema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  "list_latest_news": {
+    "method": "GET",
+    "path": "/latest-news",
+    "parameters": [],
+    "description": "Get legacy news. This endpoint is cached for 1 hour in the SHARED cache source. See [Caching](/welcome#caching). This endpoint belongs to the SHARED rate-limit bucket. See [Throttling and Rate Limits](/welcome#throttling-and-rate-limits). Returns the latest legacy forum news.",
+    "schema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    }
+  }
+}
